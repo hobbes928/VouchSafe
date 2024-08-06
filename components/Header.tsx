@@ -46,7 +46,7 @@ const Header = () => {
       </Box>
       <Box display="flex" alignItems="center">
         <ClaimForm />
-        <Box ml={4}> {/* Margin Left added to create space */}
+        <Box ml={4}>
           <AttestForm />
         </Box>
         <WalletConnect />
