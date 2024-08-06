@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Link, keyframes, useColorModeValue } from '@chakra-ui/react';
 import ClaimForm from './ClaimForm';
 import AttestForm from './AttestForm';
+import WalletConnect from './WalletConnect';
 
 const pulseAnimation = keyframes`
   from { transform: scale(1); }
@@ -48,9 +49,7 @@ const Header = () => {
         <Box ml={4}> {/* Margin Left added to create space */}
           <AttestForm />
         </Box>
-        <Button style={connectButtonStyle} ml={4} onClick={() => alert('Connect wallet functionality here')}>
-          Connect Wallet
-        </Button>
+        <WalletConnect />
       </Box>
     </Flex>
   );
