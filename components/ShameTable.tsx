@@ -1,4 +1,22 @@
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverHeader, PopoverBody, Button } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverHeader, PopoverBody, Button, keyframes } from '@chakra-ui/react';
+
+const pulseAnimation = keyframes`
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(72, 187, 120, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+  }
+`;
 
 const dummyData = [
   {
@@ -69,7 +87,14 @@ const ShameTable = () => {
                     <PopoverTrigger>
                       <Button variant="ghost">
                         <Box display="flex" alignItems="center">
-                          <Box width="10px" height="10px" borderRadius="full" bg={item.status === 'Open' ? 'green.500' : 'red.500'} marginRight="2"/>
+                          <Box
+                            width="10px"
+                            height="10px"
+                            borderRadius="full"
+                            bg={item.status === 'Open' ? 'green.500' : 'red.500'}
+                            marginRight="2"
+                            animation={item.status === 'Open' ? `${pulseAnimation} 2s infinite` : 'none'}
+                          />
                           {item.status}
                         </Box>
                       </Button>
