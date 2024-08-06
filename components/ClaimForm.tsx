@@ -16,16 +16,27 @@ import {
   useDisclosure,
   useColorModeValue,
   Box,
-  useToast
+  useToast,
+  Flex
 } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { ethers } from 'ethers';
 
-// Keyframes for the flickering effect
-const flickerAnimation = keyframes`
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+const pulseAnimation = keyframes`
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
 `;
 
 const ClaimForm = () => {
@@ -166,15 +177,41 @@ const ClaimForm = () => {
             </FormControl>
             <FormControl mt={4} isRequired>
               <FormLabel htmlFor="claimStatus">Claim Status</FormLabel>
-              <Select id="claimStatus" iconColor="transparent" onChange={handleInputChange}>
-                <option style={{
-                  background: "green",
-                  animation: `${flickerAnimation} 1s infinite`
-                }} value="open">Open</option>
-                <option style={{
-                  background: "red",
-                  animation: `${flickerAnimation} 1s infinite`
-                }} value="closed">Closed</option>
+              <Select 
+                id="claimStatus" 
+                onChange={handleInputChange}
+                icon={<Box />} // Remove default icon
+              >
+                <option value="open">
+                  <Flex alignItems="center">
+                    <Box
+                      as="span"
+                      width="10px"
+                      height="10px"
+                      borderRadius="full"
+                      bg="green.500"
+                      marginRight="2"
+                      display="inline-block"
+                      animation={`${pulseAnimation} 2s infinite`}
+                    />
+                    Open
+                  </Flex>
+                </option>
+                <option value="closed">
+                  <Flex alignItems="center">
+                    <Box
+                      as="span"
+                      width="10px"
+                      height="10px"
+                      borderRadius="full"
+                      bg="red.500"
+                      marginRight="2"
+                      display="inline-block"
+                      animation={`${pulseAnimation} 2s infinite`}
+                    />
+                    Closed
+                  </Flex>
+                </option>
               </Select>
             </FormControl>
             <FormControl mt={4}>
