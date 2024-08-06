@@ -13,16 +13,24 @@ import {
     Select,
     Textarea,
     useDisclosure,
-    Box,
-    useColorModeValue
+    useColorModeValue,
+    Box
   } from '@chakra-ui/react';
+  import { keyframes } from '@emotion/react';
+  
+  // Keyframes for the flickering effect
+  const flickerAnimation = keyframes`
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  `;
   
   const ClaimForm = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
   
     const bgGradient = useColorModeValue('linear(to-bl, #121212, #480048, #190719)', 'linear(to-br, #121212, #480048, #190719)');
     const overlayGradient = useColorModeValue('linear(to-t, #ffffff40, #ffffff10)', 'linear(to-t, #00000040, #00000010)');
-
+  
     const buttonStyle = {
         fontWeight: 'bold',
         borderRadius: 'full',
@@ -73,12 +81,18 @@ import {
                 <Input id="amountOwed" placeholder="Amount in USD" />
               </FormControl>
               <FormControl mt={4} isRequired>
-                <FormLabel htmlFor="claimStatus">Claim Status</FormLabel>
-                <Select id="claimStatus">
-                  <option value="open">Open</option>
-                  <option value="closed">Closed</option>
-                </Select>
-              </FormControl>
+              <FormLabel htmlFor="claimStatus">Claim Status</FormLabel>
+              <Select id="claimStatus" iconColor="transparent">
+                <option style={{
+                  background: "green",
+                  animation: `${flickerAnimation} 1s infinite`
+                }} value="open">Open</option>
+                <option style={{
+                  background: "red",
+                  animation: `${flickerAnimation} 1s infinite`
+                }} value="closed">Closed</option>
+              </Select>
+            </FormControl>
               <FormControl mt={4}>
                 <FormLabel htmlFor="comments">Comments</FormLabel>
                 <Textarea id="comments" placeholder="Add any relevant details" />
