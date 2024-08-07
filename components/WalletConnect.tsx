@@ -35,14 +35,14 @@ const WalletConnect = () => {
     }
   };
 
-  const fetchBalanceAndNetwork = async (web3, address) => {
+  const fetchBalanceAndNetwork = async (web3: any, address: string) => {
     const balance = await web3.eth.getBalance(address);
     setBalance(web3.utils.fromWei(balance, 'ether'));
     const networkId = await web3.eth.net.getId();
     setNetwork(getNetworkName(networkId));
   };
 
-  const getNetworkName = (networkId) => {
+  const getNetworkName = (networkId: number) => {
     switch(networkId) {
       case 1: return 'Mainnet';
       case 11155111: return 'Sepolia';
@@ -65,10 +65,10 @@ const WalletConnect = () => {
           duration: 5000,
           isClosable: true,
         });
-      } catch (error) {
+      } catch (error: any) {
         toast({
           title: "Connection Error",
-          description: error.message,
+          description: error?.message,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -98,7 +98,7 @@ const WalletConnect = () => {
     });
   };
 
-  const switchNetwork = async (networkName) => {
+  const switchNetwork = async (networkName: string) => {
     if (window.ethereum) {
       try {
         await window.ethereum.request({
@@ -106,11 +106,11 @@ const WalletConnect = () => {
           params: [{ chainId: Web3.utils.toHex(getNetworkId(networkName)) }],
         });
         setNetwork(networkName);
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
         toast({
           title: "Network Switch Error",
-          description: error.message,
+          description: error?.message,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -119,7 +119,7 @@ const WalletConnect = () => {
     }
   };
 
-  const getNetworkId = (networkName) => {
+  const getNetworkId = (networkName: string) => {
     switch(networkName) {
       case 'Mainnet': return 1;
       case 'Sepolia': return 11155111;
