@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.5",
     "@ethereum-attestation-service/eas-sdk": "^1.2.1-beta.0",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
