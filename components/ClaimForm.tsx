@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -17,10 +17,12 @@ import {
   useColorModeValue,
   Box,
   useToast,
-  Flex
-} from '@chakra-ui/react';
-import { keyframes } from '@emotion/react';
-import { ethers } from 'ethers';
+  Flex,
+} from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
+import { ethers } from "ethers";
+import { ClaimSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
+import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 
 const pulseAnimation = keyframes`
   0% {
@@ -43,40 +45,47 @@ const ClaimForm = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  const [walletAddress, setWalletAddress] = useState('');
+  const [walletAddress, setWalletAddress] = useState("");
   const [formData, setFormData] = useState({
-    projectName: '',
-    scammerAddress: '',
-    scammerLinkedIn: '',
-    scammerWorldID: '',
-    scammerCompanyName: '',
-    amountOwed: '',
-    claimStatus: 'open',
-    comments: ''
+    projectName: "",
+    scammerAddress: "",
+    scammerLinkedIn: "",
+    scammerWorldID: "",
+    scammerCompanyName: "",
+    amountOwed: "",
+    claimStatus: "open",
+    comments: "",
   });
 
-  const bgGradient = useColorModeValue('linear(to-bl, #121212, #480048, #190719)', 'linear(to-br, #121212, #480048, #190719)');
-  const overlayGradient = useColorModeValue('linear(to-t, #ffffff40, #ffffff10)', 'linear(to-t, #00000040, #00000010)');
+  const bgGradient = useColorModeValue(
+    "linear(to-bl, #121212, #480048, #190719)",
+    "linear(to-br, #121212, #480048, #190719)"
+  );
+  const overlayGradient = useColorModeValue(
+    "linear(to-t, #ffffff40, #ffffff10)",
+    "linear(to-t, #00000040, #00000010)"
+  );
 
   const buttonStyle = {
-    fontWeight: 'bold',
-    borderRadius: 'full',
-    fontSize: 'md',
+    fontWeight: "bold",
+    borderRadius: "full",
+    fontSize: "md",
     px: 4,
     py: 2,
-    color: 'white',
-    boxShadow: 'lg',
-    background: 'rgba(255, 255, 255, 0.2)',
+    color: "white",
+    boxShadow: "lg",
+    background: "rgba(255, 255, 255, 0.2)",
     _hover: {
-      background: 'rgba(255, 255, 255, 0.3)',
+      background: "rgba(255, 255, 255, 0.3)",
     },
   };
 
   useEffect(() => {
     // Check if MetaMask is installed and connected
-    if (typeof window.ethereum !== 'undefined') {
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then(accounts => {
+    if (typeof window.ethereum !== "undefined") {
+      window.ethereum
+        .request({ method: "eth_accounts" })
+        .then((accounts) => {
           if (accounts.length > 0) {
             setWalletAddress(accounts[0]);
           }
@@ -85,14 +94,15 @@ const ClaimForm = () => {
     }
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { id, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [id]: value
+      [id]: value,
     }));
   };
 
+  let toastLoading: any;
   const handleSubmit = async () => {
     if (!walletAddress) {
       toast({
@@ -106,32 +116,77 @@ const ClaimForm = () => {
     }
 
     try {
-      // Here you would typically make an API call to your backend
-      const response = await fetch('/api/submit-claim', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const eas = new EAS(EASContractAddress);
+      eas.connect(signer);
+
+      const schemaEncoder = new SchemaEncoder(
+        "string ProjectName,address Scammer_Address,string Scammer_LinkedIn,string Scammer_WorldID,string Scammer_CompanyName,uint24 Amount_Owed_USD,bool Claim_Status,string Comments"
+      );
+
+      const encodedData = schemaEncoder.encodeData([
+        { name: "ProjectName", value: formData.projectName, type: "string" },
+        {
+          name: "Scammer_Address",
+          value: formData.scammerAddress,
+          type: "address",
         },
-        body: JSON.stringify({
-          ...formData,
-          claimantAddress: walletAddress,
-        }),
+        {
+          name: "Scammer_LinkedIn",
+          value: formData.scammerLinkedIn,
+          type: "string",
+        },
+        {
+          name: "Scammer_WorldID",
+          value: formData.scammerWorldID,
+          type: "string",
+        },
+        {
+          name: "Scammer_CompanyName",
+          value: formData.scammerCompanyName,
+          type: "string",
+        },
+        { name: "Amount_Owed_USD", value: formData.amountOwed, type: "uint24" },
+        { name: "Claim_Status", value: formData.claimStatus, type: "bool" },
+        { name: "Comments", value: formData.comments, type: "string" },
+      ]);
+
+      const tx = await eas.attest({
+        schema: ClaimSchemaUID,
+        data: {
+          recipient: formData.scammerAddress,
+          expirationTime: BigInt(0),
+          revocable: true,
+          data: encodedData,
+        },
       });
 
-      if (response.ok) {
-        toast({
-          title: "Claim submitted",
-          description: "Your claim has been successfully submitted.",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-        onClose();
+      toastLoading = toast({
+        description: "Please wait...",
+        status: "loading",
+        duration: null,
+      });
+
+      const newAttestId = await tx.wait();
+      console.log("newAttestId:", newAttestId);
+
+      toast({
+        title: "Attestation submitted",
+        description: "Your attestation has been successfully submitted.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+    } catch (error: any) {
+      if (error.message.toLowerCase().includes("user rejected")) {
+        error.message = "User denied transaction signature";
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit claim');
+        error.message = "Failed to submit attestation.";
       }
-    } catch (error) {
+
       toast({
         title: "Submission failed",
         description: error.message,
@@ -139,13 +194,22 @@ const ClaimForm = () => {
         duration: 3000,
         isClosable: true,
       });
+    } finally {
+      toast.close(toastLoading);
     }
   };
 
   return (
     <>
-      <Button onClick={onOpen} style={buttonStyle}>Claim</Button>
-      <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">
+      <Button onClick={onOpen} style={buttonStyle}>
+        Claim
+      </Button>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        isCentered
+        motionPreset="slideInBottom"
+      >
         <ModalOverlay bg={overlayGradient} backdropFilter="blur(10px)" />
         <ModalContent bgGradient={bgGradient} p={5} rounded="md" color="white">
           <ModalHeader>Create a New Claim</ModalHeader>
@@ -153,32 +217,60 @@ const ClaimForm = () => {
           <ModalBody>
             <FormControl isRequired>
               <FormLabel htmlFor="projectName">Project Name</FormLabel>
-              <Input id="projectName" placeholder="Enter project name" onChange={handleInputChange} />
+              <Input
+                id="projectName"
+                placeholder="Enter project name"
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4} isRequired>
-              <FormLabel htmlFor="scammerAddress">Scammer Wallet Address</FormLabel>
-              <Input id="scammerAddress" placeholder="0x..." onChange={handleInputChange} />
+              <FormLabel htmlFor="scammerAddress">
+                Scammer Wallet Address
+              </FormLabel>
+              <Input
+                id="scammerAddress"
+                placeholder="0x..."
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel htmlFor="scammerLinkedIn">Scammer LinkedIn</FormLabel>
-              <Input id="scammerLinkedIn" placeholder="LinkedIn profile URL" onChange={handleInputChange} />
+              <Input
+                id="scammerLinkedIn"
+                placeholder="LinkedIn profile URL"
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4}>
               <FormLabel htmlFor="scammerWorldID">Scammer WorldID</FormLabel>
-              <Input id="scammerWorldID" placeholder="World Identification Number" onChange={handleInputChange} />
+              <Input
+                id="scammerWorldID"
+                placeholder="World Identification Number"
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4}>
-              <FormLabel htmlFor="scammerCompanyName">Scammer Company Name</FormLabel>
-              <Input id="scammerCompanyName" placeholder="Enter company name" onChange={handleInputChange} />
+              <FormLabel htmlFor="scammerCompanyName">
+                Scammer Company Name
+              </FormLabel>
+              <Input
+                id="scammerCompanyName"
+                placeholder="Enter company name"
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4} isRequired>
               <FormLabel htmlFor="amountOwed">Amount Owed (USD)</FormLabel>
-              <Input id="amountOwed" placeholder="Amount in USD" onChange={handleInputChange} />
+              <Input
+                id="amountOwed"
+                placeholder="Amount in USD"
+                onChange={handleInputChange}
+              />
             </FormControl>
             <FormControl mt={4} isRequired>
               <FormLabel htmlFor="claimStatus">Claim Status</FormLabel>
-              <Select 
-                id="claimStatus" 
+              <Select
+                id="claimStatus"
                 onChange={handleInputChange}
                 icon={<Box />} // Remove default icon
               >
@@ -216,14 +308,26 @@ const ClaimForm = () => {
             </FormControl>
             <FormControl mt={4}>
               <FormLabel htmlFor="comments">Comments</FormLabel>
-              <Textarea id="comments" placeholder="Add any relevant details" onChange={handleInputChange} />
+              <Textarea
+                id="comments"
+                placeholder="Add any relevant details"
+                onChange={handleInputChange}
+              />
             </FormControl>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="purple" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button variant="outline" borderColor="white" color="white" _hover={{ bg: "whiteAlpha.300" }} onClick={handleSubmit}>Submit Claim</Button>
+            <Button
+              variant="outline"
+              borderColor="white"
+              color="white"
+              _hover={{ bg: "whiteAlpha.300" }}
+              onClick={handleSubmit}
+            >
+              Submit Claim
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

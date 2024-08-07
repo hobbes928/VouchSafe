@@ -28,7 +28,7 @@ const fameData = [
   }
 ];
 
-const getMedal = (attestations) => {
+const getMedal = (attestations: number) => {
   if (attestations >= 8) return 'gold';
   if (attestations >= 5) return 'silver';
   return 'bronze';
