@@ -14,6 +14,7 @@ const WalletConnect = () => {
   const [balance, setBalance] = useState('');
   const [network, setNetwork] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [web3, setWeb3] = useState<Web3 | null>(null);
   const toast = useToast();
 
   const bgGradient = useColorModeValue('linear(to-r, #FF416C, #FF4B2B)', 'linear(to-r, #8E2DE2, #4A00E0)');
@@ -23,23 +24,39 @@ const WalletConnect = () => {
     checkConnection();
   }, []);
 
+  useEffect(() => {
+    if (isConnected && web3) {
+      const handleNetworkChange = (networkId: string | number) => {
+        setNetwork(getNetworkName(Number(networkId)));
+        fetchBalanceAndNetwork(web3, walletAddress);
+      };
+
+      window.ethereum.on('chainChanged', handleNetworkChange);
+
+      return () => {
+        window.ethereum.removeListener('chainChanged', handleNetworkChange);
+      };
+    }
+  }, [isConnected, web3, walletAddress]);
+
   const checkConnection = async () => {
     if (window.ethereum) {
-      const web3 = new Web3(window.ethereum);
-      const accounts = await web3.eth.getAccounts();
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      const accounts = await web3Instance.eth.getAccounts();
       if (accounts.length > 0) {
         setWalletAddress(accounts[0]);
         setIsConnected(true);
-        fetchBalanceAndNetwork(web3, accounts[0]);
+        fetchBalanceAndNetwork(web3Instance, accounts[0]);
       }
     }
   };
 
-  const fetchBalanceAndNetwork = async (web3: any, address: string) => {
-    const balance = await web3.eth.getBalance(address);
-    setBalance(web3.utils.fromWei(balance, 'ether'));
-    const networkId = await web3.eth.net.getId();
-    setNetwork(getNetworkName(networkId));
+  const fetchBalanceAndNetwork = async (web3Instance: Web3, address: string) => {
+    const balance = await web3Instance.eth.getBalance(address);
+    setBalance(web3Instance.utils.fromWei(balance, 'ether'));
+    const networkId = await web3Instance.eth.getChainId();
+    setNetwork(getNetworkName(Number(networkId)));
   };
 
   const getNetworkName = (networkId: number) => {
@@ -53,11 +70,12 @@ const WalletConnect = () => {
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
-        const web3 = new Web3(window.ethereum);
-        const accounts = await web3.eth.requestAccounts();
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await web3Instance.eth.requestAccounts();
         setWalletAddress(accounts[0]);
         setIsConnected(true);
-        fetchBalanceAndNetwork(web3, accounts[0]);
+        fetchBalanceAndNetwork(web3Instance, accounts[0]);
         toast({
           title: "Wallet Connected",
           description: `Address: ${accounts[0]}`,
@@ -90,6 +108,7 @@ const WalletConnect = () => {
     setBalance('');
     setNetwork('');
     setIsConnected(false);
+    setWeb3(null);
     toast({
       title: "Wallet Disconnected",
       status: "info",
@@ -99,13 +118,14 @@ const WalletConnect = () => {
   };
 
   const switchNetwork = async (networkName: string) => {
-    if (window.ethereum) {
+    if (window.ethereum && web3) {
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: Web3.utils.toHex(getNetworkId(networkName)) }],
         });
         setNetwork(networkName);
+        fetchBalanceAndNetwork(web3, walletAddress);
       } catch (error: any) {
         console.error(error);
         toast({
