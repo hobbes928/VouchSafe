@@ -52,7 +52,6 @@ const FameTable = () => {
   });
 
   if (!loading) attests = transformAttestationData(attests?.attestations);  
-  console.log(attests);
 
   return (
     <Box overflowX="auto" minHeight="200px">
