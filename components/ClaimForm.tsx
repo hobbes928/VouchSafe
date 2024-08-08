@@ -202,7 +202,7 @@ const ClaimForm = () => {
   return (
     <>
       <Button onClick={onOpen} style={buttonStyle}>
-        Claim
+        Register a Shame
       </Button>
       <Modal
         isOpen={isOpen}
