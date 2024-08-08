@@ -93,7 +93,7 @@ const ShameTable = () => {
                                 : "none"
                             }
                           />
-                          {item.Claim_Status}
+                          {item.Claim_Status === false ? "Open" : "Closed"}
                         </Box>
                       </Button>
                     </PopoverTrigger>
