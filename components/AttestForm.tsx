@@ -158,7 +158,7 @@ const AttestForm = () => {
   return (
     <>
       <Button onClick={onOpen} style={buttonStyle}>
-        Attest
+        Attest to Fame
       </Button>
       <Modal
         isOpen={isOpen}
