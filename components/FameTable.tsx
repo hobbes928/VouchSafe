@@ -1,5 +1,10 @@
 import React from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Badge, Tooltip, Spinner, Center, Flex, Heading } from '@chakra-ui/react';
+import { useQuery } from '@apollo/client';
+import { GET_ATTESTATIONS_QUERY } from '@/utils/Queries';
+import { AttestSchemaUID } from '@/utils/ContractsUtils';
+import { transformAttestationData } from '@/utils/utlis';
+import SlicedAddress from './commons/SlicedAddress';
 import AttestForm from './AttestForm';
 
 const fameData = [
@@ -40,11 +45,13 @@ const getMedal = (attestations: number) => {
 };
 
 const FameTable = () => {
-  const [loading, setLoading] = React.useState(true);
+  let { loading, data: attests } = useQuery(GET_ATTESTATIONS_QUERY, {
+    variables: {
+      schemaId: AttestSchemaUID,
+    },
+  });
 
-  React.useEffect(() => {
-    setTimeout(() => setLoading(false), 1500);
-  }, []);
+  if (!loading) attests = transformAttestationData(attests.attestations);  
 
   return (
     <Box overflowX="auto" minHeight="200px">

@@ -40,12 +40,12 @@ const pulseAnimation = keyframes`
 `;
 
 const ShameTable = () => {
-  let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
-    variables: {
-      schemaId: ClaimSchemaUID,
-    },
-  });
-  claims = transformAttestationData(!loading && claims.attestations);
+    let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
+      variables: {
+        schemaId: ClaimSchemaUID,
+      },
+    });
+    if (!loading) claims = transformAttestationData(claims.attestations);  
 
   return (
     <Box overflowX="auto" minHeight="200px">
