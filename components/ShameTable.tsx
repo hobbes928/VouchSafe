@@ -7,16 +7,10 @@ import {
   Tr,
   Th,
   Td,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
-  PopoverBody,
-  Button,
+  Tooltip,
   keyframes,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { GET_ATTESTATIONS_QUERY } from "@/utils/Queries";
 import { useQuery } from "@apollo/client";
@@ -42,17 +36,19 @@ const pulseAnimation = keyframes`
 `;
 
 const ShameTable = () => {
-  let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
-    variables: {
-      schemaId: ClaimSchemaUID,
-    },
-  });
-  claims = transformAttestationData(!loading && claims.attestations);
+    let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
+      variables: {
+        schemaId: ClaimSchemaUID,
+      },
+    });
+    claims = transformAttestationData(!loading && claims.attestations);  
 
   return (
-    <Box overflowX="auto">
+    <Box overflowX="auto" minHeight="200px"> {/* Added minHeight to ensure space for spinner */}
       {loading ? (
-        <Spinner />
+        <Center height="100%" width="100%">
+          <Spinner size="xl" />
+        </Center>
       ) : (
         <Table variant="unstyled" size="sm" colorScheme="purple">
           <Thead>
@@ -65,58 +61,51 @@ const ShameTable = () => {
           </Thead>
           <Tbody>
             {claims.map((item: any, index: number) => (
-              <Tr key={index}>
-                <Td color="white">
-                  <SlicedAddress address={item.attester} />
-                </Td>
-                <Td color="white">
-                  <SlicedAddress address={item.Scammer_Address} />
-                </Td>
-                <Td color="white">
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button variant="ghost">
-                        <Box display="flex" alignItems="center">
-                          <Box
-                            width="10px"
-                            height="10px"
-                            borderRadius="full"
-                            bg={
-                              item.Claim_Status === false
-                                ? "green.500"
-                                : "red.500"
-                            }
-                            marginRight="2"
-                            animation={
-                              item.Claim_Status === false
-                                ? `${pulseAnimation} 2s infinite`
-                                : "none"
-                            }
-                          />
-                          {item.Claim_Status === false ? "Open" : "Closed"}
-                        </Box>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent color="gray.800">
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverHeader>Claim Details</PopoverHeader>
-                      <PopoverBody>
-                        Project Name: {item.ProjectName}
-                        <br />
-                        Wallet Address: {item.Scammer_Address}
-                        <br />
-                        LinkedIn URL: {item.Scammer_LinkedIn}
-                        <br />
-                        WorldID: {item.Scammer_WorldID}
-                        <br />
-                        Comments: {item.Comments}
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                </Td>
-                <Td color="white">{item.numClaims}</Td>
-              </Tr>
+              <Tooltip
+                key={index}
+                label={`
+                  Project Name: ${item.ProjectName}
+                  Wallet Address: ${item.Scammer_Address}
+                  LinkedIn URL: ${item.Scammer_LinkedIn}
+                  WorldID: ${item.Scammer_WorldID}
+                  Comments: ${item.Comments}
+                `}
+                hasArrow
+                placement="bottom"
+                bg="gray.700"
+                color="white"
+              >
+                <Tr>
+                  <Td color="white">
+                    <SlicedAddress address={item.attester} />
+                  </Td>
+                  <Td color="white">
+                    <SlicedAddress address={item.Scammer_Address} />
+                  </Td>
+                  <Td color="white">
+                    <Box display="flex" alignItems="center">
+                      <Box
+                        width="10px"
+                        height="10px"
+                        borderRadius="full"
+                        bg={
+                          item.Claim_Status === false
+                            ? "green.500"
+                            : "red.500"
+                        }
+                        marginRight="2"
+                        animation={
+                          item.Claim_Status === false
+                            ? `${pulseAnimation} 2s infinite`
+                            : "none"
+                        }
+                      />
+                      {item.Claim_Status === false ? "Open" : "Closed"}
+                    </Box>
+                  </Td>
+                  <Td color="white">{item.numClaims}</Td>
+                </Tr>
+              </Tooltip>
             ))}
           </Tbody>
         </Table>
