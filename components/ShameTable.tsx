@@ -11,12 +11,16 @@ import {
   keyframes,
   Spinner,
   Center,
+  Flex,
+  Heading,
+  Button,
 } from "@chakra-ui/react";
 import { GET_ATTESTATIONS_QUERY } from "@/utils/Queries";
 import { useQuery } from "@apollo/client";
 import { ClaimSchemaUID } from "@/utils/ContractsUtils";
 import { transformAttestationData } from "@/utils/utlis";
 import SlicedAddress from "./commons/SlicedAddress";
+import ClaimForm from "./ClaimForm";
 
 const pulseAnimation = keyframes`
   0% {
@@ -44,7 +48,13 @@ const ShameTable = () => {
     if (!loading) claims = transformAttestationData(claims.attestations);  
 
   return (
-    <Box overflowX="auto" minHeight="200px"> {/* Added minHeight to ensure space for spinner */}
+    <Box overflowX="auto" minHeight="200px">
+      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+        <Heading as="h2" size="lg" color="white">
+          Hall of Shame
+        </Heading>
+        <ClaimForm />
+      </Flex>
       {loading ? (
         <Center height="100%" width="100%">
           <Spinner size="xl" />

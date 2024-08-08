@@ -1,6 +1,4 @@
 import { Box, Button, Flex, Link, keyframes, useColorModeValue } from '@chakra-ui/react';
-import ClaimForm from './ClaimForm';
-import AttestForm from './AttestForm';
 import WalletConnect from './WalletConnect';
 
 const pulseAnimation = keyframes`
@@ -45,10 +43,6 @@ const Header = () => {
         </Link>
       </Box>
       <Box display="flex" alignItems="center">
-        <ClaimForm />
-        <Box ml={4}>
-          <AttestForm />
-        </Box>
         <WalletConnect />
       </Box>
     </Flex>
