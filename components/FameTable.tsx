@@ -51,7 +51,7 @@ const FameTable = () => {
     },
   });
 
-  if (!loading) attests = transformAttestationData(attests.attestations);  
+  if (!loading) attests = transformAttestationData(attests?.attestations);  
 
   return (
     <Box overflowX="auto" minHeight="200px">
@@ -76,14 +76,13 @@ const FameTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {fameData.map((item, index) => (
+            {attests.map((item: any, index: number) => (
               <Tooltip
                 key={index}
                 label={`
                   Attestation Details:
-                  Comments: ${item.comments}
                   Total Attestations: ${item.attestations}
-                  Likes: ${item.likes}
+                  Likes: ${item.Like}
                 `}
                 hasArrow
                 placement="bottom"
@@ -91,14 +90,18 @@ const FameTable = () => {
                 color="white"
               >
                 <Tr>
-                  <Td color="black">{item.attestorAddress}</Td>
-                  <Td color="black">{item.beneficiaryAddress}</Td>
+                  <Td color="black">
+                    <SlicedAddress address={item.attester} />
+                    </Td>
+                  <Td color="black">
+                    <SlicedAddress address={item.recipient} />
+                    </Td>
                   <Td color="black">
                     <Badge colorScheme={getMedal(item.attestations)} p="1" fontSize="0.8em">
                       {item.attestations} {getMedal(item.attestations)}
                     </Badge>
                   </Td>
-                  <Td color="black">{item.likes}</Td>
+                  <Td color="black">{item.Like && "Yes"}</Td>
                 </Tr>
               </Tooltip>
             ))}
