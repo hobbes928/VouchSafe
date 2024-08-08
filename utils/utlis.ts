@@ -53,3 +53,38 @@ export function transformAttestationData(
     };
   });
 }
+
+// Count function
+export function countByAttesterAndRecipient(attestations: Attestation[]) {
+  // Count occurrences by attester
+  const attesterCount = new Map<string, number>();
+  // Count occurrences by recipient
+  const recipientCount = new Map<string, number>();
+
+  attestations.forEach((attestation) => {
+    const { attester, recipient } = attestation;
+
+    // Update count for attester
+    if (attesterCount.has(attester)) {
+      attesterCount.set(attester, attesterCount.get(attester)! + 1);
+    } else {
+      attesterCount.set(attester, 1);
+    }
+
+    // Update count for recipient
+    if (recipientCount.has(recipient)) {
+      recipientCount.set(recipient, recipientCount.get(recipient)! + 1);
+    } else {
+      recipientCount.set(recipient, 1);
+    }
+  });
+
+  // Convert maps to plain objects for easier use
+  const attesterCountObject = Object.fromEntries(attesterCount);
+  const recipientCountObject = Object.fromEntries(recipientCount);
+
+  return {
+    attesterCount: attesterCountObject,
+    recipientCount: recipientCountObject,
+  };
+}

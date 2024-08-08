@@ -1,5 +1,10 @@
 import React from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Badge, Tooltip, Spinner, Center } from '@chakra-ui/react';
+import { useQuery } from '@apollo/client';
+import { GET_ATTESTATIONS_QUERY } from '@/utils/Queries';
+import { AttestSchemaUID } from '@/utils/ContractsUtils';
+import { transformAttestationData } from '@/utils/utlis';
+import SlicedAddress from './commons/SlicedAddress';
 
 const fameData = [
   {
@@ -35,11 +40,13 @@ const getMedal = (attestations: number) => {
   };
 
 const FameTable = () => {
-  const [loading, setLoading] = React.useState(true);
+  let { loading, data: attests } = useQuery(GET_ATTESTATIONS_QUERY, {
+    variables: {
+      schemaId: AttestSchemaUID,
+    },
+  });
 
-  React.useEffect(() => {
-    setTimeout(() => setLoading(false), 1500);
-  }, []);
+  if (!loading) attests = transformAttestationData(attests.attestations);  
 
   return (
     <Box overflowX="auto" minHeight="200px"> {/* Added minHeight to ensure space for spinner */}
@@ -54,16 +61,16 @@ const FameTable = () => {
             <Th>Attestor</Th>
             <Th>Beneficiary</Th>
             <Th>Attestations</Th>
-            <Th>Comments</Th>
+            {/* <Th>Comments</Th> */}
           </Tr>
         </Thead>
         <Tbody>
-          {fameData.map((item, index) => (
+          {attests.map((item: any, index: number) => (
             <Tooltip
               key={index}
               label={`
                 Attestation Details:
-                Comments: ${item.comments}
+                Comments: ${item.Like}
                 Total Attestations: ${item.attestations}
               `}
               hasArrow
@@ -72,14 +79,18 @@ const FameTable = () => {
               color="white"
             >
               <Tr>
-                <Td>{item.attestorAddress}</Td>
-                <Td>{item.beneficiaryAddress}</Td>
+                <Td>
+                  <SlicedAddress address={item.attester} />
+                  </Td>
+                <Td>
+                  <SlicedAddress address={item.Wallet_Address}/>
+                  </Td>
                 <Td>
                   <Badge colorScheme={getMedal(item.attestations)} p="1" fontSize="0.8em">
                     {item.attestations} {getMedal(item.attestations)}
                   </Badge>
                 </Td>
-                <Td>{item.comments}</Td>
+                {/* <Td>{item.Like}</Td> */}
               </Tr>
             </Tooltip>
           ))}

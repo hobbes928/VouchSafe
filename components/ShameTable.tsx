@@ -41,7 +41,7 @@ const ShameTable = () => {
         schemaId: ClaimSchemaUID,
       },
     });
-    claims = transformAttestationData(!loading && claims.attestations);  
+    if (!loading) claims = transformAttestationData(claims.attestations);  
 
   return (
     <Box overflowX="auto" minHeight="200px"> {/* Added minHeight to ensure space for spinner */}
