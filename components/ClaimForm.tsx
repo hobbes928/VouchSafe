@@ -23,6 +23,7 @@ import { keyframes } from "@emotion/react";
 import { ethers } from "ethers";
 import { ClaimSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
+import { useSession } from "next-auth/react";
 
 const pulseAnimation = keyframes`
   0% {
@@ -44,6 +45,7 @@ const pulseAnimation = keyframes`
 const ClaimForm = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const { data: session } = useSession();
 
   const [walletAddress, setWalletAddress] = useState("");
   const [formData, setFormData] = useState({
@@ -198,10 +200,25 @@ const ClaimForm = () => {
       toast.close(toastLoading);
     }
   };
+  
+  const handleOpenModal = async () => {
+    console.log(session);
+    if (session) {
+      onOpen();
+    } else {
+      toast({
+        title: "WorldID Requered",
+        description: "You must login with your WorldID to register a shame.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <>
-      <Button onClick={onOpen} style={buttonStyle}>
+      <Button onClick={handleOpenModal} style={buttonStyle}>
         Register a Shame
       </Button>
       <Modal

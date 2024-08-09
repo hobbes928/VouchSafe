@@ -90,8 +90,20 @@ const ShameTable = () => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error.message?.toLowerCase()?.includes("user rejected")) {
+        error.message = "User denied transaction signature";
+      } else {
+        error.message = "Failed to submit attestation.";
+      }
+
+      toast({
+        title: "Submission failed",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       toast.close(toastLoading);
     }
