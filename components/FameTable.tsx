@@ -91,7 +91,7 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTer
             <Tr>
               <Th color="black">Beneficiary</Th>
               <Th color="black">Attestations</Th>
-              <Th color="black">Likes</Th>
+              {/* <Th color="black">Likes</Th> */}
             </Tr>
           </Thead>
           <Tbody>
@@ -122,7 +122,7 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTer
                       {/* <Box ml={2}>{item.Like}</Box> */}
                     </Flex>
                   </Td>
-                  <Td color="black">{item.Like && "Yes"}</Td>
+                  {/* <Td color="black">{item.Like && "Yes"}</Td> */}
                 </Tr>
               </Tooltip>
             ))}
