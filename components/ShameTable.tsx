@@ -123,6 +123,16 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
     }
   };
 
+  const handleCopyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast({
+      title: "Address copied",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
     <Box overflowX="auto" minHeight="200px">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -167,10 +177,10 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
                 color="white"
               >
                 <Tr>
-                  <Td color="white">
+                  <Td color="white" onClick={() => handleCopyAddress(item.attester)} style={{ cursor: 'pointer' }}>
                     <SlicedAddress address={item.attester} />
                   </Td>
-                  <Td color="white">
+                  <Td color="white" onClick={() => handleCopyAddress(item.Scammer_Address)} style={{ cursor: 'pointer' }}>
                     <SlicedAddress address={item.Scammer_Address} />
                   </Td>
                   <Td color="white">
