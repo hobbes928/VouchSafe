@@ -283,7 +283,7 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ onClaimSubmitted }) => {
                 onChange={handleInputChange}
               />
             </FormControl>
-            <FormControl mt={4} isRequired>
+            {/* <FormControl mt={4} isRequired>
               <FormLabel htmlFor="claimStatus">Claim Status</FormLabel>
               <Select
                 id="claimStatus"
@@ -293,7 +293,7 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ onClaimSubmitted }) => {
                 <option value="open">Open</option>
                 <option value="closed">Closed</option>
               </Select>
-            </FormControl>
+            </FormControl> */}
             <FormControl mt={4}>
               <FormLabel htmlFor="comments">Comments</FormLabel>
               <Textarea
