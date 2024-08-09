@@ -7,37 +7,6 @@ import { transformAttestationData } from '@/utils/utlis';
 import SlicedAddress from './commons/SlicedAddress';
 import AttestForm from './AttestForm';
 
-const fameData = [
-  {
-    attestorAddress: '0xAAA111...',
-    beneficiaryAddress: '0xBBB222...',
-    attestations: 5,
-    likes: 10,
-    comments: 'Highly reliable and professional.'
-  },
-  {
-    attestorAddress: '0xCCC333...',
-    beneficiaryAddress: '0xDDD444...',
-    attestations: 8,
-    likes: 15,
-    comments: 'Exceptional work ethics and trustworthiness.'
-  },
-  {
-    attestorAddress: '0xEEE555...',
-    beneficiaryAddress: '0xFFF666...',
-    attestations: 3,
-    likes: 7,
-    comments: 'Always delivers on time.'
-  },
-  {
-    attestorAddress: '0xEEE555...',
-    beneficiaryAddress: '0xFFF666...',
-    attestations: 3,
-    likes: 5,
-    comments: 'Always delivers on time.'
-  }
-];
-
 const getMedal = (attestations: number) => {
   if (attestations >= 8) return 'gold';
   if (attestations >= 5) return 'silver';
