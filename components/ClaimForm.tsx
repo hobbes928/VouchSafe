@@ -120,6 +120,17 @@ const ClaimForm: React.FC<ClaimFormProps> = ({ onClaimSubmitted }) => {
       return;
     }
 
+    if (formData.scammerAddress.toLowerCase() === walletAddress.toLowerCase()) {
+        toast({
+          title: "Invalid address",
+          description: "You cannot submit a claim against your own wallet address.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+    }
+
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();

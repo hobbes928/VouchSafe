@@ -94,6 +94,18 @@ const AttestForm: React.FC<AttestFormProps> = ({ onAttestationSubmitted }) => {
       });
       return;
     }
+
+    if (formData.attestedAddress.toLowerCase() === walletAddress.toLowerCase()) {
+        toast({
+          title: "Invalid address",
+          description: "You cannot attest to your own wallet address.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+    }
+
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
