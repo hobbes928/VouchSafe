@@ -15,7 +15,9 @@ import {
   Heading,
   Button,
   useToast,
+  Icon
 } from "@chakra-ui/react";
+import { QuestionIcon } from "@chakra-ui/icons";
 import { GET_ATTESTATIONS_QUERY } from "@/utils/Queries";
 import { useQuery } from "@apollo/client";
 import { ClaimSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
@@ -127,7 +129,12 @@ const ShameTable = () => {
               <Th color="white">Claimant</Th>
               <Th color="white">Respondent</Th>
               <Th color="white">Status</Th>
-              <Th color="white">Claims</Th>
+              <Th color="white">
+                Revoke{" "}
+                    <Tooltip label="Only claimant can revoke this claim" hasArrow placement="top">
+                        <Icon as={QuestionIcon} w={3} h={3} color="gray.300" />
+                    </Tooltip>
+                </Th>
             </Tr>
           </Thead>
           <Tbody>
