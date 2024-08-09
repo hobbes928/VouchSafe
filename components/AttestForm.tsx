@@ -19,10 +19,12 @@ import {
 import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from "ethers";
 import { AttestSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
+import { useSession } from "next-auth/react";
 
 const AttestForm = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const { data: session } = useSession();
 
   const [walletAddress, setWalletAddress] = useState("");
   const [formData, setFormData] = useState({
@@ -155,9 +157,24 @@ const AttestForm = () => {
     }
   };
 
+  const handleOpenModal = async () => {
+    console.log(session);
+    if (session) {
+      onOpen();
+    } else {
+      toast({
+        title: "WorldID Requered",
+        description: "You must login with your WorldID to attest to fame.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <>
-      <Button onClick={onOpen} style={buttonStyle}>
+      <Button onClick={handleOpenModal} style={buttonStyle}>
         Attest to Fame
       </Button>
       <Modal
