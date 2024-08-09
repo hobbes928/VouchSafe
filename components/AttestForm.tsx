@@ -21,7 +21,11 @@ import { ethers } from "ethers";
 import { AttestSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
 import { useSession } from "next-auth/react";
 
-const AttestForm = () => {
+interface AttestFormProps {
+  onAttestationSubmitted: () => void;
+}
+
+const AttestForm: React.FC<AttestFormProps> = ({ onAttestationSubmitted }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const { data: session } = useSession();
@@ -70,7 +74,7 @@ const AttestForm = () => {
     }
   }, []);
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -138,8 +142,11 @@ const AttestForm = () => {
         isClosable: true,
       });
       onClose();
+      
+      // Call the callback function to refresh the parent component
+      onAttestationSubmitted();
     } catch (error: any) {
-      if (error.message.toLowerCase().includes("user rejected")) {
+      if (error.message?.toLowerCase().includes("user rejected")) {
         error.message = "User denied transaction signature";
       } else {
         error.message = "Failed to submit attestation.";
@@ -147,7 +154,7 @@ const AttestForm = () => {
 
       toast({
         title: "Submission failed",
-        description: error?.message,
+        description: error.message,
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -163,7 +170,7 @@ const AttestForm = () => {
       onOpen();
     } else {
       toast({
-        title: "WorldID Requered",
+        title: "WorldID Required",
         description: "You must login with your WorldID to attest to fame.",
         status: "error",
         duration: 3000,

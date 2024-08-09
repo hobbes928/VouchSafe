@@ -42,7 +42,11 @@ const pulseAnimation = keyframes`
   }
 `;
 
-const ClaimForm = () => {
+interface ClaimFormProps {
+  onClaimSubmitted: () => void;
+}
+
+const ClaimForm: React.FC<ClaimFormProps> = ({ onClaimSubmitted }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const { data: session } = useSession();
@@ -83,7 +87,6 @@ const ClaimForm = () => {
   };
 
   useEffect(() => {
-    // Check if MetaMask is installed and connected
     if (typeof window.ethereum !== "undefined") {
       window.ethereum
         .request({ method: "eth_accounts" })
@@ -96,7 +99,7 @@ const ClaimForm = () => {
     }
   }, []);
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -130,28 +133,12 @@ const ClaimForm = () => {
 
       const encodedData = schemaEncoder.encodeData([
         { name: "ProjectName", value: formData.projectName, type: "string" },
-        {
-          name: "Scammer_Address",
-          value: formData.scammerAddress,
-          type: "address",
-        },
-        {
-          name: "Scammer_LinkedIn",
-          value: formData.scammerLinkedIn,
-          type: "string",
-        },
-        {
-          name: "Scammer_WorldID",
-          value: formData.scammerWorldID,
-          type: "string",
-        },
-        {
-          name: "Scammer_CompanyName",
-          value: formData.scammerCompanyName,
-          type: "string",
-        },
-        { name: "Amount_Owed_USD", value: formData.amountOwed, type: "uint24" },
-        { name: "Claim_Status", value: formData.claimStatus, type: "bool" },
+        { name: "Scammer_Address", value: formData.scammerAddress, type: "address" },
+        { name: "Scammer_LinkedIn", value: formData.scammerLinkedIn, type: "string" },
+        { name: "Scammer_WorldID", value: formData.scammerWorldID, type: "string" },
+        { name: "Scammer_CompanyName", value: formData.scammerCompanyName, type: "string" },
+        { name: "Amount_Owed_USD", value: Number(formData.amountOwed), type: "uint24" },
+        { name: "Claim_Status", value: formData.claimStatus === "open", type: "bool" },
         { name: "Comments", value: formData.comments, type: "string" },
       ]);
 
@@ -182,8 +169,9 @@ const ClaimForm = () => {
         isClosable: true,
       });
       onClose();
+      onClaimSubmitted(); // Call the callback to refresh the parent component
     } catch (error: any) {
-      if (error.message.toLowerCase().includes("user rejected")) {
+      if (error.message?.toLowerCase().includes("user rejected")) {
         error.message = "User denied transaction signature";
       } else {
         error.message = "Failed to submit attestation.";
@@ -207,7 +195,7 @@ const ClaimForm = () => {
       onOpen();
     } else {
       toast({
-        title: "WorldID Requered",
+        title: "WorldID Required",
         description: "You must login with your WorldID to register a shame.",
         status: "error",
         duration: 3000,
@@ -289,38 +277,10 @@ const ClaimForm = () => {
               <Select
                 id="claimStatus"
                 onChange={handleInputChange}
-                icon={<Box />} // Remove default icon
+                icon={<Box />}
               >
-                <option value="open">
-                  <Flex alignItems="center">
-                    <Box
-                      as="span"
-                      width="10px"
-                      height="10px"
-                      borderRadius="full"
-                      bg="green.500"
-                      marginRight="2"
-                      display="inline-block"
-                      animation={`${pulseAnimation} 2s infinite`}
-                    />
-                    Open
-                  </Flex>
-                </option>
-                <option value="closed">
-                  <Flex alignItems="center">
-                    <Box
-                      as="span"
-                      width="10px"
-                      height="10px"
-                      borderRadius="full"
-                      bg="red.500"
-                      marginRight="2"
-                      display="inline-block"
-                      animation={`${pulseAnimation} 2s infinite`}
-                    />
-                    Closed
-                  </Flex>
-                </option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
               </Select>
             </FormControl>
             <FormControl mt={4}>

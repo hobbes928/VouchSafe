@@ -32,14 +32,25 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
-const FameTable = () => {
-  let { loading, data: attests } = useQuery(GET_ATTESTATIONS_QUERY, {
+interface FameTableProps {
+  onAttestationSubmitted?: () => void;
+}
+
+const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
+  const { loading, data: attests, refetch } = useQuery(GET_ATTESTATIONS_QUERY, {
     variables: {
       schemaId: AttestSchemaUID,
     },
   });
 
-  if (!loading) attests = transformAttestationData(attests?.attestations);  
+  const handleAttestationSubmitted = () => {
+    refetch();
+    if (onAttestationSubmitted) {
+      onAttestationSubmitted();
+    }
+  };
+
+  const transformedAttests = !loading ? transformAttestationData(attests?.attestations) : [];
 
   return (
     <Box overflowX="auto" minHeight="200px">
@@ -47,7 +58,7 @@ const FameTable = () => {
         <Heading as="h2" size="lg" color="white">
           Hall of Fame
         </Heading>
-        <AttestForm />
+        <AttestForm onAttestationSubmitted={handleAttestationSubmitted} />
       </Flex>
       {loading ? (
         <Center height="100%" width="100%">
@@ -63,7 +74,7 @@ const FameTable = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {attests.map((item: any, index: number) => (
+            {transformedAttests.map((item: any, index: number) => (
               <Tooltip
                 key={index}
                 label={`
