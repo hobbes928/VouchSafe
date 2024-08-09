@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Table,
@@ -14,13 +14,16 @@ import {
   Flex,
   Heading,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { GET_ATTESTATIONS_QUERY } from "@/utils/Queries";
 import { useQuery } from "@apollo/client";
-import { ClaimSchemaUID } from "@/utils/ContractsUtils";
+import { ClaimSchemaUID, EASContractAddress } from "@/utils/ContractsUtils";
 import { transformAttestationData } from "@/utils/utlis";
 import SlicedAddress from "./commons/SlicedAddress";
 import ClaimForm from "./ClaimForm";
+import { ethers } from "ethers";
+import { EAS } from "@ethereum-attestation-service/eas-sdk";
 
 const pulseAnimation = keyframes`
   0% {
@@ -38,15 +41,61 @@ const pulseAnimation = keyframes`
     box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
   }
 `;
+let toastLoading: any;
 
 const ShameTable = () => {
-    let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
-      variables: {
-        schemaId: ClaimSchemaUID,
-      },
-    });
-    if (!loading) claims = transformAttestationData(claims?.attestations);  
+  const [account, setAccount] = useState<any>();
+  const toast = useToast();
 
+  let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
+    variables: {
+      schemaId: ClaimSchemaUID,
+    },
+  });
+
+  useEffect(() => {
+    getAccount();
+  }, []);
+
+  if (!loading) claims = transformAttestationData(claims?.attestations);
+
+  const getAccount = async () => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    setAccount(signer);
+  };
+
+  const handleRevoke = async (uid: string) => {
+    try {
+      const eas = new EAS(EASContractAddress);
+      eas.connect(account);
+
+      const transaction = await eas.revoke({
+        schema: ClaimSchemaUID,
+        data: { uid: uid },
+      });
+
+      toastLoading = toast({
+        description: "Please wait...",
+        status: "loading",
+        duration: null,
+      });
+
+      await transaction.wait();
+
+      toast({
+        title: "Revocked",
+        description: "Revocked.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      toast.close(toastLoading);
+    }
+  };
   return (
     <Box overflowX="auto" minHeight="200px">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -98,22 +147,30 @@ const ShameTable = () => {
                         width="10px"
                         height="10px"
                         borderRadius="full"
-                        bg={
-                          item.Claim_Status === false
-                            ? "green.500"
-                            : "red.500"
-                        }
+                        bg={item.revoked === false ? "green.500" : "red.500"}
                         marginRight="2"
                         animation={
-                          item.Claim_Status === false
+                          item.revoked === false
                             ? `${pulseAnimation} 2s infinite`
                             : "none"
                         }
                       />
-                      {item.Claim_Status === false ? "Open" : "Closed"}
+                      {item.revoked === false ? "Open" : "Closed"}
                     </Box>
                   </Td>
-                  <Td color="white">{item.numClaims}</Td>
+                  <Td color="white">
+                    {item.attester?.toLowerCase() ==
+                      account?.address?.toLowerCase() &&
+                      item.revoked === false && (
+                        <Button
+                          colorScheme="red"
+                          mr={3}
+                          onClick={() => handleRevoke(item.id)}
+                        >
+                          Revoke
+                        </Button>
+                      )}
+                  </Td>
                 </Tr>
               </Tooltip>
             ))}

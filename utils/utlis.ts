@@ -19,6 +19,7 @@ type Attestation = {
   decodedDataJson: string;
   txid: string;
   timeCreated: number;
+  revoked: string;
 };
 
 type NewObject = {
@@ -49,6 +50,7 @@ export function transformAttestationData(
       recipient: attestation.recipient,
       txid: attestation.txid,
       timeCreated: attestation.timeCreated,
+      revoked: attestation.revoked,
       ...flattenedData,
     };
   });
