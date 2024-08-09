@@ -45,11 +45,15 @@ const pulseAnimation = keyframes`
 `;
 let toastLoading: any;
 
-const ShameTable = () => {
+interface ShameTableProps {
+  onClaimSubmitted?: () => void;
+}
+
+const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
   const [account, setAccount] = useState<any>();
   const toast = useToast();
 
-  let { loading, data: claims } = useQuery(GET_ATTESTATIONS_QUERY, {
+  const { loading, data: claims, refetch } = useQuery(GET_ATTESTATIONS_QUERY, {
     variables: {
       schemaId: ClaimSchemaUID,
     },
@@ -59,12 +63,19 @@ const ShameTable = () => {
     getAccount();
   }, []);
 
-  if (!loading) claims = transformAttestationData(claims?.attestations);
+  const transformedClaims = !loading ? transformAttestationData(claims?.attestations) : [];
 
   const getAccount = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     setAccount(signer);
+  };
+
+  const handleClaimSubmitted = () => {
+    refetch();
+    if (onClaimSubmitted) {
+      onClaimSubmitted();
+    }
   };
 
   const handleRevoke = async (uid: string) => {
@@ -86,21 +97,22 @@ const ShameTable = () => {
       await transaction.wait();
 
       toast({
-        title: "Revocked",
-        description: "Revocked.",
+        title: "Revoked",
+        description: "Claim has been revoked.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
+      refetch();
     } catch (error: any) {
       if (error.message?.toLowerCase()?.includes("user rejected")) {
         error.message = "User denied transaction signature";
       } else {
-        error.message = "Failed to submit attestation.";
+        error.message = "Failed to revoke claim.";
       }
 
       toast({
-        title: "Submission failed",
+        title: "Revocation failed",
         description: error.message,
         status: "error",
         duration: 3000,
@@ -110,13 +122,14 @@ const ShameTable = () => {
       toast.close(toastLoading);
     }
   };
+
   return (
     <Box overflowX="auto" minHeight="200px">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
         <Heading as="h2" size="lg" color="white">
           Hall of Shame
         </Heading>
-        <ClaimForm />
+        <ClaimForm onClaimSubmitted={handleClaimSubmitted} />
       </Flex>
       {loading ? (
         <Center height="100%" width="100%">
@@ -131,14 +144,14 @@ const ShameTable = () => {
               <Th color="white">Status</Th>
               <Th color="white">
                 Revoke{" "}
-                    <Tooltip label="Only claimant can revoke this claim" hasArrow placement="top">
-                        <Icon as={QuestionIcon} w={3} h={3} color="gray.300" />
-                    </Tooltip>
-                </Th>
+                <Tooltip label="Only claimant can revoke this claim" hasArrow placement="top">
+                  <Icon as={QuestionIcon} w={3} h={3} color="gray.300" />
+                </Tooltip>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {claims.map((item: any, index: number) => (
+            {transformedClaims.map((item: any, index: number) => (
               <Tooltip
                 key={index}
                 label={`
