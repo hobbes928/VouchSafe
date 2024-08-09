@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Table,
@@ -47,9 +47,10 @@ let toastLoading: any;
 
 interface ShameTableProps {
   onClaimSubmitted?: () => void;
+  searchTerm: string;
 }
 
-const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
+const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted, searchTerm }) => {
   const [account, setAccount] = useState<any>();
   const toast = useToast();
 
@@ -64,6 +65,15 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
   }, []);
 
   const transformedClaims = !loading ? transformAttestationData(claims?.attestations) : [];
+
+  const filteredClaims = useMemo(() => {
+    if (!searchTerm) return transformedClaims;
+    return transformedClaims.filter((claim: any) =>
+      Object.values(claim).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [transformedClaims, searchTerm]);
 
   const getAccount = async () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -161,7 +171,7 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {transformedClaims.map((item: any, index: number) => (
+            {filteredClaims.map((item: any, index: number) => (
               <Tooltip
                 key={index}
                 label={`
