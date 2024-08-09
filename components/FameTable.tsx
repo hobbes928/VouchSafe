@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Table, Thead, Tbody, Tr, Th, Td, Tooltip, Spinner, Center, Flex, Heading, Icon, useToast } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { useQuery } from '@apollo/client';
@@ -34,9 +34,10 @@ const StarRating = ({ rating }: { rating: number }) => {
 
 interface FameTableProps {
   onAttestationSubmitted?: () => void;
+  searchTerm: string;
 }
 
-const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
+const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTerm }) => {
   const { loading, data: attests, refetch } = useQuery(GET_ATTESTATIONS_QUERY, {
     variables: {
       schemaId: AttestSchemaUID,
@@ -63,6 +64,15 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
 
   const transformedAttests = !loading ? transformAttestationData(attests?.attestations) : [];
 
+  const filteredAttests = useMemo(() => {
+    if (!searchTerm) return transformedAttests;
+    return transformedAttests.filter((attest: any) =>
+      Object.values(attest).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [transformedAttests, searchTerm]);
+
   return (
     <Box overflowX="auto" minHeight="200px">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -85,7 +95,7 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
             </Tr>
           </Thead>
           <Tbody>
-            {transformedAttests.map((item: any, index: number) => (
+            {filteredAttests.map((item: any, index: number) => (
               <Tooltip
                 key={index}
                 label={`
