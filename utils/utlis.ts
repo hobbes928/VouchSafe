@@ -22,12 +22,17 @@ type Attestation = {
   revoked: string;
 };
 
+type LikeCount = {
+  recipient: string;
+  Like: number;
+};
+
 type NewObject = {
   [key: string]: any;
 };
 
 export function transformAttestationData(
-  attestations: Attestation[]
+  attestations: Attestation[] | NewObject[]
 ): NewObject[] {
   if (!attestations) return [];
   return attestations.map((attestation) => {
@@ -56,24 +61,13 @@ export function transformAttestationData(
   });
 }
 
-// Count function
-export function countByAttesterAndRecipient(attestations: Attestation[]) {
-  // Count occurrences by attester
-  const attesterCount = new Map<string, number>();
-  // Count occurrences by recipient
+export function countByRecipient(attestations: NewObject[]): LikeCount[] {
+  const newAttestations = transformAttestationData(attestations);
+
   const recipientCount = new Map<string, number>();
 
-  attestations.forEach((attestation) => {
-    const { attester, recipient } = attestation;
-
-    // Update count for attester
-    if (attesterCount.has(attester)) {
-      attesterCount.set(attester, attesterCount.get(attester)! + 1);
-    } else {
-      attesterCount.set(attester, 1);
-    }
-
-    // Update count for recipient
+  newAttestations.forEach((attestation) => {
+    const { recipient } = attestation;
     if (recipientCount.has(recipient)) {
       recipientCount.set(recipient, recipientCount.get(recipient)! + 1);
     } else {
@@ -81,12 +75,14 @@ export function countByAttesterAndRecipient(attestations: Attestation[]) {
     }
   });
 
-  // Convert maps to plain objects for easier use
-  const attesterCountObject = Object.fromEntries(attesterCount);
-  const recipientCountObject = Object.fromEntries(recipientCount);
+  const result: LikeCount[] = Array.from(recipientCount.entries()).map(
+    ([recipient, like]) => {
+      return {
+        recipient,
+        Like: like,
+      };
+    }
+  );
 
-  return {
-    attesterCount: attesterCountObject,
-    recipientCount: recipientCountObject,
-  };
+  return result;
 }
