@@ -176,6 +176,8 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted, searchTerm })
                 key={index}
                 label={
                   <Box whiteSpace="pre-line">
+                    <u>Claim Details:</u>
+                    <br />
                     Project Name: <b>{item.ProjectName}</b>
                     <br />
                     Wallet Address: <b>{item.Scammer_Address}</b>
@@ -183,6 +185,8 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted, searchTerm })
                     LinkedIn URL: <b>{item.Scammer_LinkedIn}</b>
                     <br />
                     WorldID: <b>{item.Scammer_WorldID}</b>
+                    <br />
+                    Amount Owed: <b>{item.Amount_Owed_USD}</b>
                     <br />
                     Comments: <b>{item.Comments}</b>
                   </Box>
