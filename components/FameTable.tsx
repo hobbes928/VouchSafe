@@ -4,7 +4,7 @@ import { StarIcon } from '@chakra-ui/icons';
 import { useQuery } from '@apollo/client';
 import { GET_ATTESTATIONS_QUERY } from '@/utils/Queries';
 import { AttestSchemaUID } from '@/utils/ContractsUtils';
-import { transformAttestationData } from '@/utils/utlis';
+import { countByRecipient } from '@/utils/utlis';
 import SlicedAddress from './commons/SlicedAddress';
 import AttestForm from './AttestForm';
 
@@ -62,7 +62,7 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTer
     });
   };
 
-  const transformedAttests = !loading ? transformAttestationData(attests?.attestations) : [];
+  const transformedAttests = !loading ? countByRecipient(attests?.attestations) : [];
 
   const filteredAttests = useMemo(() => {
     if (!searchTerm) return transformedAttests;
@@ -98,11 +98,15 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTer
             {filteredAttests.map((item: any, index: number) => (
               <Tooltip
                 key={index}
-                label={`
-                  Attestation Details:
-                  Total Attestations: ${item.attestations}
-                  Likes: ${item.Like}
-                `}
+                label={
+                  <Box whiteSpace="pre-line">
+                    <u>Attestation Details:</u>
+                    <br />
+                    Total Attestations: <b>{item.Like}</b>
+                    <br />
+                    Likes: <b>{item.Like}</b>
+                  </Box>
+                }
                 hasArrow
                 placement="bottom"
                 bg="gray.700"
@@ -114,8 +118,8 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted, searchTer
                   </Td>
                   <Td color="black">
                     <Flex alignItems="center">
-                      <StarRating rating={getStars(item.attestations)} />
-                      <Box ml={2}>{item.attestations}</Box>
+                      <StarRating rating={getStars(item.Like)} />
+                      {/* <Box ml={2}>{item.Like}</Box> */}
                     </Flex>
                   </Td>
                   <Td color="black">{item.Like && "Yes"}</Td>

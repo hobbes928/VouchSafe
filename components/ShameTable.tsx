@@ -174,13 +174,19 @@ const ShameTable: React.FC<ShameTableProps> = ({ onClaimSubmitted, searchTerm })
             {filteredClaims.map((item: any, index: number) => (
               <Tooltip
                 key={index}
-                label={`
-                  Project Name: ${item.ProjectName}
-                  Wallet Address: ${item.Scammer_Address}
-                  LinkedIn URL: ${item.Scammer_LinkedIn}
-                  WorldID: ${item.Scammer_WorldID}
-                  Comments: ${item.Comments}
-                `}
+                label={
+                  <Box whiteSpace="pre-line">
+                    Project Name: <b>{item.ProjectName}</b>
+                    <br />
+                    Wallet Address: <b>{item.Scammer_Address}</b>
+                    <br />
+                    LinkedIn URL: <b>{item.Scammer_LinkedIn}</b>
+                    <br />
+                    WorldID: <b>{item.Scammer_WorldID}</b>
+                    <br />
+                    Comments: <b>{item.Comments}</b>
+                  </Box>
+                }
                 hasArrow
                 placement="bottom"
                 bg="gray.700"
