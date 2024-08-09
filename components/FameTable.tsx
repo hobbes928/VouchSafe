@@ -38,7 +38,7 @@ const FameTable = () => {
         <Table variant="unstyled" size="sm" colorScheme="green">
           <Thead>
             <Tr>
-              <Th color="black">Attestor</Th>
+              {/* <Th color="black">Attestor</Th> */}
               <Th color="black">Beneficiary</Th>
               <Th color="black">Attestations</Th>
               <Th color="black">Likes</Th>
@@ -59,9 +59,9 @@ const FameTable = () => {
                 color="white"
               >
                 <Tr>
-                  <Td color="black">
+                  {/* <Td color="black">
                     <SlicedAddress address={item.attester} />
-                    </Td>
+                    </Td> */}
                   <Td color="black">
                     <SlicedAddress address={item.recipient} />
                     </Td>

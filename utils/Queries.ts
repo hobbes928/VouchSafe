@@ -9,6 +9,7 @@ export const GET_ATTESTATIONS_QUERY = gql`
       decodedDataJson
       txid
       timeCreated
+      revoked
     }
   }
 `;
