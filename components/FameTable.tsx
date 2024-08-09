@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Tooltip, Spinner, Center, Flex, Heading, Icon } from '@chakra-ui/react';
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Tooltip, Spinner, Center, Flex, Heading, Icon, useToast } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 import { useQuery } from '@apollo/client';
 import { GET_ATTESTATIONS_QUERY } from '@/utils/Queries';
@@ -42,12 +42,23 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
       schemaId: AttestSchemaUID,
     },
   });
+  const toast = useToast();
 
   const handleAttestationSubmitted = () => {
     refetch();
     if (onAttestationSubmitted) {
       onAttestationSubmitted();
     }
+  };
+
+  const handleCopyAddress = (address: string) => {
+    navigator.clipboard.writeText(address);
+    toast({
+      title: "Address copied",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
   };
 
   const transformedAttests = !loading ? transformAttestationData(attests?.attestations) : [];
@@ -88,7 +99,7 @@ const FameTable: React.FC<FameTableProps> = ({ onAttestationSubmitted }) => {
                 color="white"
               >
                 <Tr>
-                  <Td color="black">
+                  <Td color="black" onClick={() => handleCopyAddress(item.recipient)} style={{ cursor: 'pointer' }}>
                     <SlicedAddress address={item.recipient} />
                   </Td>
                   <Td color="black">
