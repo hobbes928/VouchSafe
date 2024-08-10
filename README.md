@@ -21,6 +21,7 @@ VouchSafe is a decentralized platform that empowers workers to anonymously attes
 - [Tech Stack](#tech-stack)
 - [WorldID Integration](#worldid-integration)
 - [EAS Schema Integration](#eas-schema-integration)
+- [Team](#team)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
 
@@ -215,14 +216,42 @@ const tx = await eas.attest({
 const newAttestId = await tx.wait();
 ```
 
+## Team
+
+VouchSafe is a proof of concept built by a dedicated team of developers passionate about creating a fairer gig economy. Meet the minds behind the project:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/alirazacodes">
+        <img src="https://github.com/alirazacodes.png" width="100px;" alt="Ali Raza"/><br />
+        <sub><b>Ali Raza</b></sub>
+      </a><br />
+      Web3 Fullstack Dev
+    </td>
+    <td align="center">
+      <a href="https://github.com/alfaqi">
+        <img src="https://github.com/alfaqi.png" width="100px;" alt="Abdullah Alfaqi"/><br />
+        <sub><b>Abdullah Alfaqi</b></sub>
+      </a><br />
+      Fullstack Dev
+    </td>
+    <td align="center">
+      <a href="https://github.com/hobbes928">
+        <img src="https://github.com/hobbes928.png" width="100px;" alt="hobbes928"/><br />
+        <sub><b>Manraj Jawanda</b></sub>
+      </a><br />
+      Project Manager/Lead
+    </td>
+  </tr>
+</table>
+
 ## Acknowledgements
 
 - [ETHGlobal SuperHackathon](https://ethglobal.com)
 - [Optimism](https://www.optimism.io/)
 - [WorldID](https://worldcoin.org/)
 - [Ethereum Attestation Service](https://attest.sh/)
-- [Chakra UI](https://chakra-ui.com/)
-- [Next.js](https://nextjs.org/)
 
 ## License
 
