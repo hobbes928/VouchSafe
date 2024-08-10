@@ -104,7 +104,6 @@ Create a `.env.local` file in the root directory of your project. This file will
 
 ```env
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=""
 WLD_CLIENT_ID=
 WLD_CLIENT_SECRET=
 ```
@@ -115,15 +114,7 @@ Follow these steps to obtain the required values:
    - This is the base URL of your application. For local development, use `http://localhost:3000`.
    - In production, replace this with your actual domain.
 
-2. **NEXTAUTH_SECRET**:
-   - This is a secret key used to encrypt cookies and tokens.
-   - Generate it using the following command in your terminal:
-     ```
-     openssl rand -base64 32
-     ```
-   - Copy the output and paste it as the value for `NEXTAUTH_SECRET`.
-
-3. **WLD_CLIENT_ID** and **WLD_CLIENT_SECRET**:
+2. **WLD_CLIENT_ID** and **WLD_CLIENT_SECRET**:
    - These are required for WorldID integration.
    - To obtain these values:
      a. Go to the [Worldcoin Developer Portal](https://developer.worldcoin.org/).
@@ -134,7 +125,7 @@ Follow these steps to obtain the required values:
 
    Note: Make sure to set the correct redirect URI in your Worldcoin app settings. For local development, it should be `http://localhost:3000/api/auth/callback/worldcoin`.
 
-4. (Optional) **EAS Contract Address**:
+3. (Optional) **EAS Contract Address**:
    - If you're using a custom EAS contract, add the following line to your `.env.local` file:
      ```
      EAS_CONTRACT_ADDRESS=your_contract_address_here
@@ -292,5 +283,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Built with ❤️ for the ETHGlobal SuperHack 2023. Check out our [submission](https://ethglobal.com/showcase/vouchsafe-hg15f) on the ETHGlobal showcase!
-
+Built with ❤️ for the ETHGlobal SuperHack 2024. Check out our [submission](https://ethglobal.com/showcase/vouchsafe-hg15f) on the ETHGlobal showcase!
