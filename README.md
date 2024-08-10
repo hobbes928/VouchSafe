@@ -100,17 +100,50 @@ VouchSafe allows workers to anonymously attest to positive or negative experienc
 
 ### Environment Setup
 
-Create a `.env` file in the root directory with the following content:
+Create a `.env.local` file in the root directory of your project. This file will contain sensitive information and should never be committed to version control, because if you do it stays there forever, even if you delete the repository, you can check out more about it here; [Anyone can Access Deleted and Private Repository Data on GitHub](https://trufflesecurity.com/blog/anyone-can-access-deleted-and-private-repo-data-github). Add the following content to the file:
 
 ```env
-NEXTAUTH_URL=http://localhost:3003
-# Generate this with `openssl rand -base64 32`
+NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=""
-
-# Get these values from the Worldcoin Developer Portal
 WLD_CLIENT_ID=
 WLD_CLIENT_SECRET=
 ```
+
+Follow these steps to obtain the required values:
+
+1. **NEXTAUTH_URL**: 
+   - This is the base URL of your application. For local development, use `http://localhost:3000`.
+   - In production, replace this with your actual domain.
+
+2. **NEXTAUTH_SECRET**:
+   - This is a secret key used to encrypt cookies and tokens.
+   - Generate it using the following command in your terminal:
+     ```
+     openssl rand -base64 32
+     ```
+   - Copy the output and paste it as the value for `NEXTAUTH_SECRET`.
+
+3. **WLD_CLIENT_ID** and **WLD_CLIENT_SECRET**:
+   - These are required for WorldID integration.
+   - To obtain these values:
+     a. Go to the [Worldcoin Developer Portal](https://developer.worldcoin.org/).
+     b. Sign in or create a new account if you don't have one.
+     c. Click on "Create a new app" or select an existing app.
+     d. In your app settings, find the "Client ID" and "Client Secret" fields.
+     e. Copy these values and paste them into your `.env.local` file for `WLD_CLIENT_ID` and `WLD_CLIENT_SECRET` respectively.
+
+   Note: Make sure to set the correct redirect URI in your Worldcoin app settings. For local development, it should be `http://localhost:3000/api/auth/callback/worldcoin`.
+
+4. (Optional) **EAS Contract Address**:
+   - If you're using a custom EAS contract, add the following line to your `.env.local` file:
+     ```
+     EAS_CONTRACT_ADDRESS=your_contract_address_here
+     ```
+   - Replace `your_contract_address_here` with the address of your deployed EAS contract.
+
+Remember to never share your `.env.local` file or expose these secrets publicly. If you're deploying to a hosting platform like Vercel or Netlify, make sure to set these environment variables in your project settings on those platforms.
+
+After setting up your `.env.local` file, restart your development server for the changes to take effect.
 
 ### Installation
 
