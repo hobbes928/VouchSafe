@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Box, Flex, Heading, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { Box, Flex, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import ShameTable from '../components/ShameTable';
 import FameTable from '../components/FameTable';
